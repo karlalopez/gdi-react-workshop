@@ -1,54 +1,59 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
-var data = [
-  {
-      "author": "Michael Scott",
-      "text": "Would I rather be feared or loved? Easy, both. I want people to be afraid of how much they love me."
-  },
-  {
-      "author": "Jeff Bezos",
-      "text": "In the end, we are our choices."
-  }
-];
-
 var Twitter = React.createClass({
-  // loadTweetsFromServer: function () {
-  //   // GET updated set of tweets from database
-  //   $.get(this.props.url, function (data) {
-  //       // Set state in step 6 of the exercise!
-  //     }.bind(this)
-  //   );
-  // },
-  // handleTweetSubmit: function (author, text) {
-  //   var tweet = { author: author, text: text };
-  //
-  //   // POST to add tweet to database
-  //   $.post(this.props.url, tweet, function (data) {
-  //       // Set state in step 10 of the exercise!
-  //     }.bind(this)
-  //   );
-  // },
-  // componentDidMount: function () {
-  //   // Set this.state.data to most recent set of tweets from database
-  //   this.loadTweetsFromServer();
-  // },
+  getInitialState: function () {
+    return { data: [] };
+  },
+  loadTweetsFromServer: function () {
+    // GET updated set of tweets from database
+    $.get(this.props.url, function (data) {
+        this.setState({ data: data });
+      }.bind(this)
+    );
+  },
+  handleTweetSubmit: function (author, text) {
+    var tweet = { author: author, text: text };
+  
+    // POST to add tweet to database
+    $.post(this.props.url, tweet, function (data) {
+        this.setState({ data: data });
+      }.bind(this)
+    );
+  },
+  componentDidMount: function () {
+    // Set this.state.data to most recent set of tweets from database
+    this.loadTweetsFromServer();
+  },
   render: function () {
     return (
       <div className="twitter">
         <h1>Tweets</h1>
-        {/* Render TweetForm component here */}
-        {/* Render TweetList component here */}
+        <TweetForm onTweetSubmit={this.handleTweetSubmit}/>
+        <TweetList data={this.state.data}/>
       </div>
     );
   }
 });
 
 var TweetForm = React.createClass({
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var author = this.refs.author.value;
+    var text = this.refs.text.value;
+    if (!text || !author) {
+      return;
+    }
+    this.props.onTweetSubmit(author, text);
+    this.refs.author.value = '';
+    this.refs.text.value = '';
+  }, 
   render: function () {
     return (
-      <form className="tweetForm">
-        {/* Render some text here */}
+      <form className="tweetForm" onSubmit={ this.handleSubmit }>
+        <input type="text" placeholder="Author Name" ref="author" />
+        <input type="text" placeholder="Tweet" ref="text" />
+        <button type="submit" className="btn btn-info">Tweet</button>
       </form>
     );
   }
@@ -56,9 +61,13 @@ var TweetForm = React.createClass({
 
 var TweetList = React.createClass({
   render: function () {
+    var tweetData = this.props.data;
+    var tweetArray = tweetData.map(function(tweet) {
+      return <Tweet author={tweet.author} text={tweet.text} />;
+    });
     return (
       <div className="tweetList">
-        {/* Render some text here */}
+        {tweetArray}
       </div>
     );
   }
@@ -68,13 +77,14 @@ var Tweet = React.createClass({
   render: function () {
     return (
       <div className="tweet">
-        {/* Render some text here */}
+        <h3>{this.props.text}</h3>
+        {this.props.author}
       </div>
     );
   }
 });
 
 ReactDOM.render(
-  <Twitter />,
+  <Twitter url="tweets.json"/>,
   document.getElementById('tweets')
 );

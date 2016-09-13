@@ -16,15 +16,15 @@ var DropdownMenu = React.createClass({
 	},
 	// Toggle DropdownMenu's open/closed state 
 	toggleMenu: function() {
-		this.setState({ open: !this.state.open });
+		this.setState({ open: !this.state.open }); // toggles between true or false
 	},
 	render: function() {
 		return (
 			<div className='dropdown-wrapper' onClick={ this.toggleMenu }>
-				<button className='btn btn-info'>
+				<button className={ this.state.open ? 'btn btn-danger' : 'btn btn-info'}>
 					Dropdown Menu
 				</button>
-				<ul>
+				<ul style={ this.state.open ? styles.open : styles.closed}>
 					<li>Option #1</li>
 					<li>Option #2</li>
 					<li>Option #3</li>
